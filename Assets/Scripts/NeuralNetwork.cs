@@ -135,7 +135,7 @@ public class NeuralNetwork{
         }
         if (UnityEngine.Random.Range(1, randMax) < outputMutate)
         {
-            //addOutput();
+            addOutput();
         }
         if (UnityEngine.Random.Range(1, randMax) < neuronMutate)
         {
@@ -199,56 +199,35 @@ public class NeuralNetwork{
 
         InitNeurons();
 
-        // a list holding the jagged arrays of connection weights
-        List<float[][]> weightsList = new List<float[][]>();
+        float[][][] newWeights = new float[weights.Length + 1][][];
 
-        //step through the layers
-        for (int i = 1; i < layers.Length; i++)
+        
+        newWeights[newWeights.Length - 1] = weights[weights.Length - 1];
+        for (int i = 0; i < weights.Length - 1; i++)
         {
-            int neuronsInPreviousLayer = layers[i - 1];
-            List<float[]> layerWeightList = new List<float[]>();
-
-            //step through the neurons in this layer
-            for (int j = 0; j < neurons[i].Length; j++)
+            newWeights[i] = weights[i];
+        }
+        newWeights[newWeights.Length - 2] = new float[weights[1].Length][];
+        List<float[]> neuronList = new List<float[]>();
+        for (int i = 0; i < newWeights[newWeights.Length - 2].Length; i++)
+        {
+            List<float> weightList = new List<float>();
+            for (int j = 0; j < newWeights[1][1].Length; j++)
             {
-                float[] neuronWeights = new float[neuronsInPreviousLayer];
-
-                //if this is the new layer, we need to specifically define weights
-                if (i == weights.Length - 2)
+                if (j == i)
                 {
-                    //step through neurons of previous layer making random weight for each connection
-                    for (int k = 0; k < neuronsInPreviousLayer; k++)
-                    {
-                        if (j == k)
-                        {
-                            //coppy straight accross
-                            neuronWeights[k] = 1;
-                        }
-                        else
-                        {
-                            //if not straight accross, set to zero
-                            neuronWeights[k] = 0;
-                        }
-                        
-                    }
-                    layerWeightList.Add(neuronWeights);
+                    weightList.Add(1.0f);
                 }
                 else
                 {
-                    //step through neurons of previous layer making random weight for each connection
-                    for (int k = 0; k < neuronsInPreviousLayer; k++)
-                    {
-                        neuronWeights[k] = weights[i - 1][j][k];
-                    }
-                    layerWeightList.Add(neuronWeights);
+                    weightList.Add(0.0f);
                 }
             }
-            weightsList.Add(layerWeightList.ToArray());
+            neuronList.Add(weightList.ToArray());
         }
-        weights = weightsList.ToArray();
+        newWeights[newWeights.Length - 2] = neuronList.ToArray();
     }
-
-    /// <summary>
+    ///<Summary>
     /// add a new neuron to every hidden layer
     /// all weights for the new neurons will be 0
     /// so it won't have an immediate affect and will
